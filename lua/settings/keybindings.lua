@@ -1,4 +1,4 @@
-require("helpers/globals-helpers")
+require("helpers/global-helpers")
 require("helpers/keyboard-helpers")
 
 g.mapleader = "\\"
