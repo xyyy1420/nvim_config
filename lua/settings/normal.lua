@@ -61,5 +61,3 @@ o.encoding = "utf-8"
 opt.spell = true
 opt.spelllang = { "en_us" }
 opt.scrolloff = 8
-
-cmd('colorscheme evening')
