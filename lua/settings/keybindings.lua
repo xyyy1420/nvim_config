@@ -12,6 +12,7 @@ nm("gD", "<cmd>lua vim.lsp.buf.declaration()<cr>") -- Go to declaration
 
 --- fzf-lua {{{
 nm("gd", "<cmd>lua require('fzf-lua').lsp_definitions({jump_to_single_result=true})<CR>") -- Goto declaration
+nm("gr", "<cmd>lua require('fzf-lua').lsp_references({jump_to_single_result=true})<CR>") -- Goto declaration
 nm("<leader>p", "<cmd>FzfLua oldfiles<CR>")                                               -- Show recent files
 nm("<leader>O", "<cmd>FzfLua git_files<CR>")                                              -- Search for a file in project
 nm("<leader>o", "<cmd>FzfLua files<CR>")                                                  -- Search for a file (ignoring git-ignore)

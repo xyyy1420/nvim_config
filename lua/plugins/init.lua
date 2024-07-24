@@ -110,14 +110,6 @@ return {
     end,
   },
 
-  -- }}}
-  -- Nvim-various-textobjs {{{
-  {
-    "chrisgrieser/nvim-various-textobjs",
-    opts = { useDefaultKeymaps = true },
-  },
-  -- }}}
-
   {
     "williamboman/mason.nvim",
     build = ":MasonUpdate",
@@ -125,13 +117,6 @@ return {
       "williamboman/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
     },
-  },
-  {
-    "tamago324/nlsp-settings.nvim",
-    config = function()
-      local lspconfig = require("lspconfig")
-      local nlspsettings = require("nlspsettings")
-    end,
   },
   {
     "VonHeikemen/lsp-zero.nvim",
@@ -155,6 +140,31 @@ return {
     "ibhagwan/fzf-lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
+      local fzf_lua = require("fzf-lua")
+
+      local function gtags_global(query)
+        local handle = io.popen("global -x " .. query)
+        local result = handle:read("*a")
+        handle:close()
+
+        local lines = {}
+        for line in result:gmatch("[^\r\n]+") do
+          table.insert(lines, line)
+        end
+
+        fzf_lua.fzf_exec(lines, {
+          prompt = 'GTags> ',
+          actions = {
+            ['default'] = function (selected)
+              local file, line = selected[1]:match("([^:]+):(%d+)")
+              vim.cmd(string.format('edit +%s %s',line,file))
+            end
+          }
+        })
+      end
+      vim.api.nvim_create_user_command('GtagsGlobal', function(opts)
+        gtags_global(opts.args)
+      end, { nargs = 1 })
       -- calling `setup` is optional for customization
       require("fzf-lua").setup({})
     end,
@@ -170,7 +180,7 @@ return {
   {
     "aserowy/tmux.nvim",
     configs = function()
-      require("tmux").setup({})
+      return require("tmux").setup()
     end,
   },
 
@@ -195,7 +205,26 @@ return {
   "folke/lazydev.nvim",
   "folke/which-key.nvim",
   {
-    "folke/neoconf.nvim", 
+    "folke/neoconf.nvim",
     cmd = "Neoconf"
   },
+--  {
+--    "lewis6991/gitsigns.nvim",
+--    config = function ()
+--      require('gitsigns').setup()
+--    end
+--  },
+  -- enhance open file from terminal
+  {
+    "willothy/flatten.nvim",
+    config = true,
+    lazy = false,
+    priority = 1001,
+  },
+  {
+    "t-troebst/perfanno.nvim",
+    config = function ()
+      require("perfanno").setup({})
+    end
+  }
 }

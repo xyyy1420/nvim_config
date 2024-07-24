@@ -61,3 +61,10 @@ o.encoding = "utf-8"
 opt.spell = true
 opt.spelllang = { "en_us" }
 opt.scrolloff = 8
+
+-- Clipboard {{{
+vim.opt.clipboard = "unnamedplus" -- Use system clipboard
+vim.opt.fixeol = false -- Turn off appending new line in the end of a file
+-- }}}
+
+
