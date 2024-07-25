@@ -142,29 +142,52 @@ return {
     config = function()
       local fzf_lua = require("fzf-lua")
 
-      local function gtags_global(query)
-        local handle = io.popen("global -x " .. query)
-        local result = handle:read("*a")
+      local function global_update()
+        local handle = io.popen("global -u")
         handle:close()
-
-        local lines = {}
-        for line in result:gmatch("[^\r\n]+") do
-          table.insert(lines, line)
-        end
-
-        fzf_lua.fzf_exec(lines, {
-          prompt = 'GTags> ',
-          actions = {
-            ['default'] = function (selected)
-              local file, line = selected[1]:match("([^:]+):(%d+)")
-              vim.cmd(string.format('edit +%s %s',line,file))
-            end
-          }
-        })
       end
-      vim.api.nvim_create_user_command('GtagsGlobal', function(opts)
-        gtags_global(opts.args)
-      end, { nargs = 1 })
+
+      local function split(str,reps)
+        local resultStrList = {}
+        string.gsub(str,'[^'..reps..']+', function (w)
+          table.insert(resultStrList,w)
+        end)
+        return resultStrList
+      end
+
+      local function create_user_command(user_command, shell_command, nargs)
+        vim.api.nvim_create_user_command(
+          user_command,
+          function(opts)
+            fzf_lua.files({
+              cmd = shell_command .. opts.args,
+              prompt = user_command .. "> ",
+              actions = {
+                ['default'] = function (selected, o)
+                  local selected_split = split(selected[1], " ")
+                  local file = fzf_lua.path.entry_to_file(selected_split[3], o)
+                  print(file.path)
+                  local cmd = string.format("edit %s", file.path)
+                  vim.cmd(cmd)
+                end
+              }
+            })
+          end,
+          {
+            nargs = nargs
+          }
+        )
+      end
+
+      create_user_command("GlobalTags", "global -x ", 1)
+      create_user_command("GlobalTagsInFilename", "global -x -f ", 1)
+      create_user_command("GlobalGrep", "global -x -g ", 1)
+      create_user_command("GlobalTagsInFiles", "global -x -f ", 1)
+
+      vim.api.nvim_create_user_command('GlobalUpdate', function()
+        global_update()
+      end, { nargs = 0 })
+
       -- calling `setup` is optional for customization
       require("fzf-lua").setup({})
     end,
@@ -208,12 +231,6 @@ return {
     "folke/neoconf.nvim",
     cmd = "Neoconf"
   },
---  {
---    "lewis6991/gitsigns.nvim",
---    config = function ()
---      require('gitsigns').setup()
---    end
---  },
   -- enhance open file from terminal
   {
     "willothy/flatten.nvim",
